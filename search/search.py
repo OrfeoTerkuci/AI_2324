@@ -116,7 +116,6 @@ def depthFirstSearch(problem: SearchProblem):
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
-    from util import Stack as Stack
     from util import Queue as Queue
     start = problem.getStartState()
     if problem.isGoalState(start):
