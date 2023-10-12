@@ -127,7 +127,7 @@ def breadthFirstSearch(problem: SearchProblem):
         # expand all the nodes in the fringe
         new_fringe = Stack()
         for node, direction in fringe.list:
-            path = direction if direction is not 0 else []
+            path = direction if direction != 0 else []
             if node in visited.list:
                 continue
             visited.push(node)
