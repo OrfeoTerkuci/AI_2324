@@ -97,7 +97,7 @@ def depthFirstSearch(problem: SearchProblem):
     path = []
     while not fringe.isEmpty():
         current = fringe.pop()
-        if current not in visited.list:
+        if current[0] not in visited.list:
             if problem.isGoalState(current[0]):
                 path = current[1]
                 return path
@@ -117,33 +117,33 @@ def depthFirstSearch(problem: SearchProblem):
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     from util import Stack as Stack
+    from util import Queue as Queue
     start = problem.getStartState()
     if problem.isGoalState(start):
         return []
-    visited = Stack()
-    fringe = Stack()
+    visited = Queue()
+    fringe = Queue()
     fringe.push((start, 0))
+    path = []
     while not fringe.isEmpty():
-        # expand all the nodes in the fringe
-        new_fringe = Stack()
-        for node, direction in fringe.list:
-            path = direction if direction != 0 else []
-            if node in visited.list:
-                continue
-            visited.push(node)
-            if problem.isGoalState(node):
-                return direction
-            s = problem.getSuccessors(node)
+        current = fringe.pop()
+        if current[0] not in visited.list:
+            if problem.isGoalState(current[0]):
+                path = current[1]
+                return path
+            s = problem.getSuccessors(current[0])
+            visited.push(current[0])
+            if current[1] != 0:
+                path = current[1]
+            # check successors
             if s is None:
                 continue
-            for newNode in s:
-                if newNode[0] in visited.list or (newNode[0], direction) in fringe.list:
+            for successor in s:
+                if successor[0] in visited.list or (successor[0], path) in fringe.list:
                     continue
                 new_path = [_ for _ in path]
-                new_path.append(newNode[1])
-                new_fringe.push((newNode[0], new_path))
-        fringe = new_fringe
-    return []
+                new_path.append(successor[1])
+                fringe.push((successor[0], new_path))
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
