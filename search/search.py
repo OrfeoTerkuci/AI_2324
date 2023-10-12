@@ -153,7 +153,7 @@ def uniformCostSearch(problem: SearchProblem):
         return []
     visited = Stack()
     fringe = Queue()
-    fringe.push((start, 0), 0)
+    fringe.push((start, 0, 0), 0)
     path = []
     while not fringe.isEmpty():
         current = fringe.pop()
@@ -173,7 +173,7 @@ def uniformCostSearch(problem: SearchProblem):
                     continue
                 new_path = [_ for _ in path]
                 new_path.append(successor[1])
-                fringe.push((successor[0], new_path, successor[2]), successor[2])
+                fringe.push((successor[0], new_path, successor[2] + current[2]), successor[2] + current[2])
 
 def nullHeuristic(state, problem=None):
     """
