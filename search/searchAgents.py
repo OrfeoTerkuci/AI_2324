@@ -479,7 +479,15 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    # Test 1: 0 if node is goal, else minimal manhattan distance
+    # Calculates distance to all corners
+    # distances = [abs(c[0] - pos[0]) + abs(c[1] - pos[1]) for c in corners if c not in visited]
+    distances = [mazeDistance(position, c, problem.startingGameState) for c in foodGrid.asList()]
+    if len(distances) == 0:
+        return 0
+    closest = min(distances)
+    farthest = max(distances)
+    return farthest
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
