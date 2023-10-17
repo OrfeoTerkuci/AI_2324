@@ -114,6 +114,7 @@ def depthFirstSearch(problem: SearchProblem):
                     new_path.append(successor[1])
                     fringe.push((successor[0], new_path))
 
+
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     from util import Queue as Queue

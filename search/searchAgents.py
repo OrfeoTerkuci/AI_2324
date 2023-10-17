@@ -296,16 +296,21 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.startingPosition, []
 
-    def isGoalState(self, state: Any):
+    def isGoalState(self, state: (tuple, list)):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        current_position, current_visited = state
+        if current_position in self.corners:
+            if current_position not in current_visited:
+                current_visited.append(current_position)
+            return len(current_visited) == 4
+        return False
 
-    def getSuccessors(self, state: Any):
+    def getSuccessors(self, state: (tuple, list)):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -324,9 +329,17 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-
             "*** YOUR CODE HERE ***"
-
+            x, y = state[0]
+            visited = list(state[1])
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                if (nextx, nexty) in self.corners:
+                    if (nextx, nexty) not in visited:
+                        visited.append((nextx, nexty))
+                successors.append([((nextx, nexty), visited), action, 1])
         self._expanded += 1 # DO NOT CHANGE
         return successors
 
@@ -335,7 +348,7 @@ class CornersProblem(search.SearchProblem):
         Returns the cost of a particular sequence of actions.  If those actions
         include an illegal move, return 999999.  This is implemented for you.
         """
-        if actions == None: return 999999
+        if actions is None: return 999999
         x,y= self.startingPosition
         for action in actions:
             dx, dy = Actions.directionToVector(action)
