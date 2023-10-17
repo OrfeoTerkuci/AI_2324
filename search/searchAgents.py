@@ -298,7 +298,7 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         return self.startingPosition, []
 
-    def isGoalState(self, state: (tuple, list)):
+    def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
@@ -310,7 +310,7 @@ class CornersProblem(search.SearchProblem):
             return len(current_visited) == 4
         return False
 
-    def getSuccessors(self, state: (tuple, list)):
+    def getSuccessors(self, state: Any):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -374,6 +374,7 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
+    # Calculate
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
