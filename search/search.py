@@ -91,6 +91,7 @@ def depthFirstSearch(problem: SearchProblem):
     start = problem.getStartState()
     if problem.isGoalState(start):
         return []
+    # Initialize fringe (containing start node and an empty path) and visited stack
     visited = Stack()
     fringe = Stack()
     fringe.push((start, 0))
@@ -98,16 +99,19 @@ def depthFirstSearch(problem: SearchProblem):
     while not fringe.isEmpty():
         current = fringe.pop()
         if current[0] not in visited.list:
+            # If goal is reached, return the path until now
             if problem.isGoalState(current[0]):
                 path = current[1]
                 return path
+            # Get successors from current node
             s = problem.getSuccessors(current[0])
             visited.push(current[0])
+            # Replace old path
             if current[1] != 0:
                 path = current[1]
-            # check successors
             if s is None:
                 continue
+            # Add all new successors to fringe
             for successor in s:
                 if successor[0] not in visited.list and successor[0] not in fringe.list:
                     new_path = [_ for _ in path]
