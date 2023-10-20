@@ -67,15 +67,38 @@ class ReflexAgent(Agent):
         Print out these variables to see what you're getting, then combine them
         to create a masterful evaluation function.
         """
+
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        newFood = newFood.asList()
+        closest_food = min([manhattanDistance(newPos, f) for f in newFood]) if len(newFood) != 0 else 0
+        closest_ghost = min([manhattanDistance(newPos, g.getPosition()) for g in newGhostStates])
+        timer_total = sum(newScaredTimes)
+        # If moving there causes you to lose
+        if successorGameState.isLose():
+            return -10000
+        # If moving there causes you to win
+        if successorGameState.isWin():
+            return 10000
+        # Base game score
+        score = successorGameState.getScore()
+        # Food incentive (the farther the food, the more the score is lowered)
+        score -= closest_food * 2
+        # Ghost incentive (the farther the ghost, the bigger the score)
+        score += closest_ghost * 2
+        # Incentive for eating food (useful actions)
+        score += (successorGameState.getNumFood() < currentGameState.getNumFood()) * 10
+        # Incentive if there are ghost timers
+        score += timer_total * 5
+        # Penalty for stopping
+        if action == Directions.STOP:
+            score -= 10000
+        return score
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
