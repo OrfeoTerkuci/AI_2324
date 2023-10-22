@@ -387,13 +387,9 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     "*** YOUR CODE HERE ***"
     # Returns 0 at every goal state and is always positive
     pos, visited = state
-    # Test 1: 0 if node is goal, else minimal manhattan distance
-    # Calculates distance to all corners
-    # distances = [abs(c[0] - pos[0]) + abs(c[1] - pos[1]) for c in corners if c not in visited]
     distances = [mazeDistance(pos, c, problem.startingGameState) for c in corners if c not in visited]
     if len(distances) == 0:
         return 0
-    closest = min(distances)
     farthest = max(distances)
     return farthest
 
