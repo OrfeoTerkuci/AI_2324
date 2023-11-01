@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -70,7 +71,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem: SearchProblem):
     """
@@ -86,7 +88,6 @@ def depthFirstSearch(problem: SearchProblem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
     from util import Stack as Stack
     start = problem.getStartState()
     if problem.isGoalState(start):
@@ -149,6 +150,7 @@ def breadthFirstSearch(problem: SearchProblem):
                 new_path.append(successor[1])
                 fringe.push((successor[0], new_path))
 
+
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     from util import PriorityQueue as Queue
@@ -180,12 +182,14 @@ def uniformCostSearch(problem: SearchProblem):
                 new_path.append(successor[1])
                 fringe.push((successor[0], new_path, successor[2] + current[2]), successor[2] + current[2])
 
+
 def nullHeuristic(state, problem=None):
     """
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
     return 0
+
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
