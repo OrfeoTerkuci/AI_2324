@@ -191,6 +191,15 @@ def nullHeuristic(state, problem=None):
     return 0
 
 
+def exploreSuccessors(problem, current, fringe, visited, path, heuristic, successor):
+    if successor[0] in visited.list or (successor[0], path, successor[1]) in fringe.heap:
+        return
+    new_path = [_ for _ in path]
+    new_path.append(successor[1])
+    priority = successor[2] + current[2] + heuristic(successor[0], problem)
+    fringe.push((successor[0], new_path, successor[2] + current[2]), priority)
+
+
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     from util import PriorityQueue as Queue
@@ -217,12 +226,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
             if s is None:
                 continue
             for successor in s:
-                if successor[0] in visited.list or (successor[0], path, successor[1]) in fringe.heap:
-                    continue
-                new_path = [_ for _ in path]
-                new_path.append(successor[1])
-                priority = successor[2] + current[2] + heuristic(successor[0], problem)
-                fringe.push((successor[0], new_path, successor[2] + current[2]), priority)
+                exploreSuccessors(problem, current, fringe, visited, path, heuristic, successor)
 
 
 # Abbreviations
