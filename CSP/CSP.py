@@ -60,7 +60,12 @@ class CSP(ABC):
             :param assignment: dict (Variable -> value)
         """
         # TODO: Implement CSP::isComplete (problem 1)
-        pass
+        if assignment == {}:
+            return False
+        for key, val in assignment.items():
+            if val is None:
+                return False
+        return True
 
     @abstractmethod
     def isValidPairwise(self, var1: Variable, val1: Value, var2: Variable, val2: Value) -> bool:
@@ -76,7 +81,13 @@ class CSP(ABC):
             Note that constraints are symmetrical, so you don't need to check them in both directions.
         """
         # TODO: Implement CSP::isValid (problem 1)
-        pass
+        for var, val in assignment.items():
+            for neighbor in self.neighbors(var):
+                if neighbor not in assignment:
+                    continue
+                if not self.isValidPairwise(var, val, neighbor, assignment[neighbor]):
+                    return False
+        return True
 
     def solveBruteForce(self, initialAssignment: Dict[Variable, Value] = dict()) -> Optional[Dict[Variable, Value]]:
         """ Called to solve this CSP with brute force technique.
@@ -91,7 +102,28 @@ class CSP(ABC):
             :return: a complete and valid assignment if one exists, None otherwise.
         """
         # TODO: Implement CSP::_solveBruteForce (problem 1)
-        pass
+        # Backtracking brute force algorithm
+        # Recursive backtracking algorithm
+        # 1. Check if assignment is complete
+        # 2. Select unassigned variable
+        # 3. Order domain values
+        # 4. Loop through domain values
+        # 5. Check if value is consistent with assignment
+        # 6. If consistent, add to assignment and recurse
+        # 7. If not consistent, remove from assignment
+        # 8. If no value is consistent, return failure
+
+        if self.isComplete(assignment) and len(assignment) == len(self.variables):
+            return assignment
+        var = self.selectVariable(assignment, domains)
+        for val in self.orderDomain(assignment, domains, var):
+            assignment[var] = val
+            if self.isValid(assignment):
+                result = self._solveBruteForce(assignment, domains)
+                if result is not None:
+                    return result
+            del assignment[var]
+        return None
 
     def solveForwardChecking(self, initialAssignment: Dict[Variable, Value] = dict()) -> Optional[Dict[Variable, Value]]:
         """ Called to solve this CSP with forward checking.
