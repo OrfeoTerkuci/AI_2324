@@ -61,5 +61,36 @@ def queens(n: int = 5, method: Method = Method.bf, MRV: bool = True, LCV: bool =
     solve(csp, method)
 
 
+@app.command()
+def multi_queens(n: int = 5, method: Method = Method.bf, MRV: bool = True, LCV: bool = True, i: int = 1):
+    """ Solve the N Queens problem as a CSP. """
+    import json
+    import numpy as np
+    import os
+
+    # Clear the function_calls.json file
+    open('function_calls.json', 'w').close()
+
+    for _ in range(i):
+        command = (f"python solver.py queens --n {n} "
+                   f"--method {method} "
+                   f"{'--mrv' if MRV else '--no-mrv'} "
+                   f"{'--lcv' if LCV else '--no-lcv'}")
+        os.system(command)
+
+    # Load the data from the json file
+    calls_number = json.load(open("function_calls.json", "r")).values()
+    calls_number = list(calls_number)
+
+    # Calculate the mean of the calls_number list
+    mean = np.mean(calls_number)
+    print(f"Mean: {mean}")
+    # Calculate the standard deviation of the calls_number list
+    std = np.std(calls_number)
+    print(f"Standard deviation: {std}")
+    print(f"Max: {max(calls_number)}")
+    print(f"Min: {min(calls_number)}")
+
+
 if __name__ == "__main__":
     app()
