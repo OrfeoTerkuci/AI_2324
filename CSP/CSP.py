@@ -102,16 +102,6 @@ class CSP(ABC):
             :return: a complete and valid assignment if one exists, None otherwise.
         """
         # TODO: Implement CSP::_solveBruteForce (problem 1)
-        # Backtracking brute force algorithm
-        # Recursive backtracking algorithm
-        # 1. Check if assignment is complete
-        # 2. Select unassigned variable
-        # 3. Order domain values
-        # 4. Loop through domain values
-        # 5. Check if value is consistent with assignment
-        # 6. If consistent, add to assignment and recurse
-        # 7. If not consistent, remove from assignment
-        # 8. If no value is consistent, return failure
 
         if self.isComplete(assignment) and len(assignment) == len(self.variables):
             return assignment
