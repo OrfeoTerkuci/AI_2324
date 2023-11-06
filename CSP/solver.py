@@ -62,13 +62,15 @@ def queens(n: int = 5, method: Method = Method.bf, MRV: bool = True, LCV: bool =
 
 
 @app.command()
-def multi_queens(n: int = 5, method: Method = Method.bf, MRV: bool = True, LCV: bool = True, i: int = 1):
+def multi_queens(n: int = 5, method: Method = Method.bf, MRV: bool = True, LCV: bool = True,
+                 i: int = 1, mean: bool = False, std: bool = False):
     """ Solve the N Queens problem as a CSP. """
     import json
     import numpy as np
     import os
 
-    # Clear the function_calls.json file
+    # Create the function_calls.json file
+    # Clear the function_calls_1.json file
     open('function_calls.json', 'w').close()
 
     for _ in range(i):
@@ -81,16 +83,25 @@ def multi_queens(n: int = 5, method: Method = Method.bf, MRV: bool = True, LCV: 
     # Load the data from the json file
     calls_number = json.load(open("function_calls.json", "r")).values()
     calls_number = list(calls_number)
+    calls_number = np.array(calls_number)
 
     # Calculate the mean of the calls_number list
-    mean = np.mean(calls_number)
-    print(f"Mean: {mean}")
+    if mean:
+        mean = np.mean(calls_number)
+        data = json.load(open("function_calls.json", "r"))
+        data["mean"] = mean
+        json.dump(data, open("function_calls.json", "w"))
+        print(f"Mean: {mean}")
     # Calculate the standard deviation of the calls_number list
-    std = np.std(calls_number)
-    print(f"Standard deviation: {std}")
+    if std:
+        std = np.std(calls_number)
+        data = json.load(open("function_calls.json", "r"))
+        data["std"] = std
+        json.dump(data, open("function_calls.json", "w"))
+        print(f"Standard deviation: {std}")
+
     print(f"Max: {max(calls_number)}")
     print(f"Min: {min(calls_number)}")
-
 
 if __name__ == "__main__":
     app()
