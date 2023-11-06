@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 
 from util import monitor
 
-
 Value = TypeVar('Value')
 
 
@@ -59,7 +58,6 @@ class CSP(ABC):
         """ Return whether the assignment covers all variables.
             :param assignment: dict (Variable -> value)
         """
-        # TODO: Implement CSP::isComplete (problem 1)
         if assignment == {}:
             return False
         for key, val in assignment.items():
@@ -80,7 +78,6 @@ class CSP(ABC):
             Hint: use `CSP::neighbors` and `CSP::isValidPairwise` to check that all binary constraints are satisfied.
             Note that constraints are symmetrical, so you don't need to check them in both directions.
         """
-        # TODO: Implement CSP::isValid (problem 1)
         for var, val in assignment.items():
             for neighbor in self.neighbors(var):
                 if neighbor not in assignment:
@@ -96,13 +93,12 @@ class CSP(ABC):
         return self._solveBruteForce(initialAssignment, domains)
 
     @monitor
-    def _solveBruteForce(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]]) -> Optional[Dict[Variable, Value]]:
+    def _solveBruteForce(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]]) -> Optional[
+        Dict[Variable, Value]]:
         """ Implement the actual backtracking algorithm to brute force this CSP.
             Use `CSP::isComplete`, `CSP::isValid`, `CSP::selectVariable` and `CSP::orderDomain`.
             :return: a complete and valid assignment if one exists, None otherwise.
         """
-        # TODO: Implement CSP::_solveBruteForce (problem 1)
-
         if self.isComplete(assignment) and len(assignment) == len(self.variables):
             return assignment
         var = self.selectVariable(assignment, domains)
@@ -115,7 +111,8 @@ class CSP(ABC):
             del assignment[var]
         return None
 
-    def solveForwardChecking(self, initialAssignment: Dict[Variable, Value] = dict()) -> Optional[Dict[Variable, Value]]:
+    def solveForwardChecking(self, initialAssignment: Dict[Variable, Value] = dict()) -> Optional[
+        Dict[Variable, Value]]:
         """ Called to solve this CSP with forward checking.
             Initializes the domains and calls `CSP::_solveForwardChecking`. """
         domains = domainsFromAssignment(initialAssignment, self.variables)
@@ -124,15 +121,41 @@ class CSP(ABC):
         return self._solveForwardChecking(initialAssignment, domains)
 
     @monitor
-    def _solveForwardChecking(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]]) -> Optional[Dict[Variable, Value]]:
+    def _solveForwardChecking(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]]) -> Optional[
+        Dict[Variable, Value]]:
         """ Implement the actual backtracking algorithm with forward checking.
             Use `CSP::forwardChecking` and you should no longer need to check if an assignment is valid.
             :return: a complete and valid assignment if one exists, None otherwise.
         """
         # TODO: Implement CSP::_solveForwardChecking (problem 2)
-        pass
+        if self.isComplete(assignment) and len(assignment) == len(self.variables):
+            return assignment
+        for domain in domains.values():
+            if len(domain) == 0:
+                return None
+        var = self.selectVariable(assignment, domains)
+        for val in self.orderDomain(assignment, domains, var):
+            original_domains = copy.deepcopy(domains)
+            assignment[var] = val
+            # Adjust domains
+            domains = self.forwardChecking(assignment, domains, var)
+            # If no domains left, backtrack
+            # for domain in domains.values():
+            #     if len(domain) == 0:
+            #         del assignment[var]
+            #         return None
+            # Recurse next assignment
+            result = self._solveForwardChecking(assignment, domains)
+            if result is not None:
+                return result
+            # Backtrack
+            del assignment[var]
+            # Restore domains
+            domains = original_domains
+        return None
 
-    def forwardChecking(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]], variable: Variable) -> Dict[Variable, Set[Value]]:
+    def forwardChecking(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]],
+                        variable: Variable) -> Dict[Variable, Set[Value]]:
         """ Implement the forward checking algorithm from the theory lectures.
 
         :param domains: current domains.
@@ -140,8 +163,16 @@ class CSP(ABC):
         :param variable: The variable that was just assigned (only need to check changes).
         :return: the new domains after enforcing all constraints.
         """
-        # TODO: Implement CSP::forwardChecking (problem 2)
-        pass
+        for var in self.neighbors(variable):
+            if var not in assignment:
+                new_domain = domains[var].copy()
+                for val in new_domain:
+                    if not self.isValidPairwise(variable, assignment[variable], var, val):
+                        domains[var].remove(val)
+                        if len(domains[var]) == 0:
+                            # Restore original domains if inconsistency found
+                            return domains
+        return domains
 
     def selectVariable(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]]) -> Variable:
         """ Implement a strategy to select the next variable to assign. """
@@ -150,7 +181,8 @@ class CSP(ABC):
 
         # TODO: Implement CSP::selectVariable (problem 2)
 
-    def orderDomain(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]], var: Variable) -> List[Value]:
+    def orderDomain(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]], var: Variable) -> \
+    List[Value]:
         """ Implement a smart ordering of the domain values. """
         if not self.LCV:
             return list(domains[var])
@@ -166,7 +198,8 @@ class CSP(ABC):
         return self._solveAC3(initialAssignment, domains)
 
     @monitor
-    def _solveAC3(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]]) -> Optional[Dict[Variable, Value]]:
+    def _solveAC3(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]]) -> Optional[
+        Dict[Variable, Value]]:
         """
             Implement the actual backtracking algorithm with AC3.
             Use `CSP::ac3`.
@@ -175,7 +208,8 @@ class CSP(ABC):
         # TODO: Implement CSP::_solveAC3 (problem 3)
         pass
 
-    def ac3(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]], variable: Variable) -> Dict[Variable, Set[Value]]:
+    def ac3(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]], variable: Variable) -> Dict[
+        Variable, Set[Value]]:
         """ Implement the AC3 algorithm from the theory lectures.
 
         :param domains: current domains.
