@@ -155,7 +155,6 @@ class CSP(ABC):
         """
         value = assignment[variable]
         for var in self.neighbors(variable):
-            # new_domain =
             for val in copy.deepcopy(domains[var]):
                 # Remove inconsistent values
                 if not self.isValidPairwise(variable, value, var, val):
