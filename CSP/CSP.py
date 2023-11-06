@@ -58,12 +58,7 @@ class CSP(ABC):
         """ Return whether the assignment covers all variables.
             :param assignment: dict (Variable -> value)
         """
-        if assignment == {}:
-            return False
-        for key, val in assignment.items():
-            if val is None:
-                return False
-        return True
+        return self.remainingVariables(assignment) == set()
 
     @abstractmethod
     def isValidPairwise(self, var1: Variable, val1: Value, var2: Variable, val2: Value) -> bool:
@@ -128,7 +123,7 @@ class CSP(ABC):
             :return: a complete and valid assignment if one exists, None otherwise.
         """
         # TODO: Implement CSP::_solveForwardChecking (problem 2)
-        if self.isComplete(assignment) and len(assignment) == len(self.variables):
+        if self.isComplete(assignment):
             return assignment
         for domain in domains.values():
             if len(domain) == 0:
@@ -139,11 +134,6 @@ class CSP(ABC):
             assignment[var] = val
             # Adjust domains
             domains = self.forwardChecking(assignment, domains, var)
-            # If no domains left, backtrack
-            # for domain in domains.values():
-            #     if len(domain) == 0:
-            #         del assignment[var]
-            #         return None
             # Recurse next assignment
             result = self._solveForwardChecking(assignment, domains)
             if result is not None:
@@ -163,15 +153,16 @@ class CSP(ABC):
         :param variable: The variable that was just assigned (only need to check changes).
         :return: the new domains after enforcing all constraints.
         """
+        value = assignment[variable]
         for var in self.neighbors(variable):
-            if var not in assignment:
-                new_domain = domains[var].copy()
-                for val in new_domain:
-                    if not self.isValidPairwise(variable, assignment[variable], var, val):
-                        domains[var].remove(val)
-                        if len(domains[var]) == 0:
-                            # Restore original domains if inconsistency found
-                            return domains
+            # new_domain =
+            for val in copy.deepcopy(domains[var]):
+                # Remove inconsistent values
+                if not self.isValidPairwise(variable, value, var, val):
+                    domains[var].remove(val)
+                    if len(domains[var]) == 0:
+                        # Restore original domains if inconsistency found
+                        return domains
         return domains
 
     def selectVariable(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]]) -> Variable:
@@ -181,13 +172,49 @@ class CSP(ABC):
 
         # TODO: Implement CSP::selectVariable (problem 2)
 
+        # Selection of variable with minimum remaining values,
+        # if multiple variables have the same amount of remaining values, select the one with the most constraints
+
+        # Get the variable with the minimum remaining values
+        min_remaining_values = float('inf')
+        min_remaining_values_var = []
+        for var in self.remainingVariables(assignment):
+            if len(domains[var]) < min_remaining_values:
+                min_remaining_values = len(domains[var])
+                min_remaining_values_var.append(var)
+
+        if len(min_remaining_values_var) == 1:
+            return min_remaining_values_var[0]
+
+        # Get the variable with the most constraints
+        max_constraints = 0
+        max_constraints_var = None
+        for var in min_remaining_values_var:
+            if len(self.neighbors(var)) > max_constraints:
+                max_constraints = len(self.neighbors(var))
+                max_constraints_var = var
+        return max_constraints_var
+
     def orderDomain(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]], var: Variable) -> \
-    List[Value]:
+            List[Value]:
         """ Implement a smart ordering of the domain values. """
         if not self.LCV:
             return list(domains[var])
 
         # TODO: Implement CSP::orderDomain (problem 2)
+
+        # Order the domain values by the least constraining value heuristic
+        # Sort the values by the number of values they rule out for other variables
+
+        # Get the number of values ruled out for each value
+        ruled_out_values = {}
+        for val in domains[var]:
+            ruled_out_values[val] = 0
+            for neighbor in self.neighbors(var):
+                if val in domains[neighbor]:
+                    ruled_out_values[val] += 1
+        # Sort the values by the number of values they rule out for other variables
+        return sorted(domains[var], key=lambda x: ruled_out_values[x])
 
     def solveAC3(self, initialAssignment: Dict[Variable, Value] = dict()) -> Optional[Dict[Variable, Value]]:
         """ Called to solve this CSP with AC3.
