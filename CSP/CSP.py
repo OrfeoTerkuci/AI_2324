@@ -122,7 +122,6 @@ class CSP(ABC):
             Use `CSP::forwardChecking` and you should no longer need to check if an assignment is valid.
             :return: a complete and valid assignment if one exists, None otherwise.
         """
-        # TODO: Implement CSP::_solveForwardChecking (problem 2)
         if self.isComplete(assignment):
             return assignment
         for domain in domains.values():
@@ -169,8 +168,6 @@ class CSP(ABC):
         if not self.MRV:
             return random.choice(list(self.remainingVariables(assignment)))
 
-        # TODO: Implement CSP::selectVariable (problem 2)
-
         # Selection of variable with minimum remaining values,
         # if multiple variables have the same amount of remaining values, select the one with the most constraints
 
@@ -199,8 +196,6 @@ class CSP(ABC):
         """ Implement a smart ordering of the domain values. """
         if not self.LCV:
             return list(domains[var])
-
-        # TODO: Implement CSP::orderDomain (problem 2)
 
         # Order the domain values by the least constraining value heuristic
         # Sort the values by the number of values they rule out for other variables
