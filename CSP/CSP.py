@@ -226,8 +226,34 @@ class CSP(ABC):
             Use `CSP::ac3`.
             :return: a complete and valid assignment if one exists, None otherwise.
         """
-        # TODO: Implement CSP::_solveAC3 (problem 3)
-        pass
+        if self.isComplete(assignment):
+            return assignment
+        for domain in domains.values():
+            if len(domain) == 0:
+                return None
+        var = self.selectVariable(assignment, domains)
+        for val in self.orderDomain(assignment, domains, var):
+            original_domains = copy.deepcopy(domains)
+            assignment[var] = val
+            # Adjust domains
+            domains = self.ac3(assignment, domains, var)
+            # Recurse next assignment
+            result = self._solveAC3(assignment, domains)
+            if result is not None:
+                return result
+            # Backtrack
+            del assignment[var]
+            # Restore domains
+            domains = original_domains
+        return None
+
+    def removeInconsistentValues(self, domains: Dict[Variable, Set[Value]], xi: Variable, xj: Variable):
+        removed = False
+        for x in copy.deepcopy(domains[xi]):
+            if not any(self.isValidPairwise(xi, x, xj, y) for y in domains[xj]):
+                domains[xi].remove(x)
+                removed = True
+        return removed
 
     def ac3(self, assignment: Dict[Variable, Value], domains: Dict[Variable, Set[Value]], variable: Variable) -> Dict[
         Variable, Set[Value]]:
@@ -238,8 +264,27 @@ class CSP(ABC):
         :param variable: The variable that was just assigned (only need to check changes).
         :return: the new domains ensuring arc consistency.
         """
-        # TODO: Implement CSP::ac3 (problem 3)
-        pass
+        queue = []
+        # restrict domains to only the assigned values if the variable is assigned
+        for var, val in assignment.items():
+            domains[var] = {val}
+
+        # initialize queue with all arcs
+        # for var in self.variables:
+        for neighbor in self.neighbors(variable):
+            queue.append((variable, neighbor))
+            queue.append((neighbor, variable))
+
+        while len(queue) > 0:
+            xi, xj = queue.pop(0)
+            # remove inconsistent values
+            removed = self.removeInconsistentValues(domains, xi, xj)
+            if removed:
+                if len(domains[xi]) == 0:
+                    return domains
+                for xk in self.neighbors(xi):
+                    queue.append((xk, xi))
+        return domains
 
 
 def domainsFromAssignment(assignment: Dict[Variable, Value], variables: Set[Variable]) -> Dict[Variable, Set[Value]]:
