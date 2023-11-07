@@ -169,7 +169,7 @@ class CSP(ABC):
             return random.choice(list(self.remainingVariables(assignment)))
 
         # Selection of variable with minimum remaining values,
-        # if multiple variables have the same amount of remaining values, select the one with the most constraints
+        # if multiple variables have the same number of remaining values, select the one with the most constraints
 
         # Get the variable with the minimum remaining values
         min_remaining_values = float('inf')
@@ -177,6 +177,8 @@ class CSP(ABC):
         for var in self.remainingVariables(assignment):
             if len(domains[var]) < min_remaining_values:
                 min_remaining_values = len(domains[var])
+                min_remaining_values_var = [var]
+            elif len(domains[var]) == min_remaining_values:
                 min_remaining_values_var.append(var)
 
         if len(min_remaining_values_var) == 1:
