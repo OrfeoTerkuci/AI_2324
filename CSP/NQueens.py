@@ -33,7 +33,7 @@ class NQueens(CSP):
 
     def assignmentToStr(self, assignment: Dict['Queen', Value]) -> str:
         """ Formats the assignment of variables for this CSP into a string. """
-        if len(assignment) > 80:
+        if len(assignment) > 501:
             return super().assignmentToStr(assignment)
         border = "+" + "-" * (self.n) + "+"
         s = border + "\n"
