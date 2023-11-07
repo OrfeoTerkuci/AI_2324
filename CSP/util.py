@@ -35,7 +35,7 @@ def update_json():
 
 
 def monitor(f):
-    """ Decorator to time functions and count the amount of calls. """
+    """ Decorator to time functions and count the number of calls. """
     def wrapper(*args, **kwargs):
         if f not in progressBars:
             progressBars[f] = tqdm(desc=f.__name__, unit=" calls")
