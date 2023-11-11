@@ -142,10 +142,111 @@ class MultiAgentSearchAgent(Agent):
         self.depth = int(depth)
 
 
+# Tree node class
+class Node:
+    def __init__(self, state, action, parent, depth, agent):
+        self.state = state
+        # self._position = state.getPacmanPosition() if agent == 0 else state.getGhostPosition(agent)
+        self.action = action
+        self.parent = parent
+        self.depth = depth
+        self.agent = agent
+        self.children = []
+        self.eval = None
+
+    def addChild(self, child):
+        self.children.append(child)
+
+    def getChildren(self):
+        return self.children
+
+    def getState(self):
+        return self.state
+
+    def getAction(self):
+        return self.action
+
+    def getParent(self):
+        return self.parent
+
+    def getDepth(self):
+        return self.depth
+
+    def getAgent(self):
+        return self.agent
+
+    def isLeaf(self):
+        return len(self.children) == 0
+
+    def isRoot(self):
+        return self.parent is None
+
+    def __str__(self):
+        return (f"Action: {self.action}, Depth: {self.depth}, Eval: {self.eval}, "
+                f"Agent: {'Pacman' if self.agent == 0 else f'Ghost{self.agent}'}")
+
+    def __eq__(self, other):
+        return self.state == other.state
+
+    def __hash__(self):
+        return hash(self.state)
+
+def printTree(tree):
+    printTreeHelper(tree, 0)
+
+
+def printTreeHelper(node: Node, depth):
+    print("Depth: " + str(depth) + " Node: " + str(node))
+    for child in node.getChildren():
+        printTreeHelper(child, depth + 1)
+
+
 class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
+
+    def createMinimaxTreeHelper(self, node: Node, depth, agent, gameState: GameState):
+        if depth == self.depth or node.getState().isWin() or node.getState().isLose():
+            return
+        actions = node.getState().getLegalActions(agent)
+        for action in actions:
+            child = Node(node.getState().generateSuccessor(agent, action), action, node, node.getDepth() + 1,
+                         (agent + 1) % gameState.getNumAgents())
+            node.addChild(child)
+            self.createMinimaxTreeHelper(child, depth + 1 if (agent + 1) % gameState.getNumAgents() == 0 else depth,
+                                         (agent + 1) % gameState.getNumAgents(), gameState)
+
+    def createMinimaxTree(self, gameState: GameState, depth, agent):
+        root = Node(gameState, None, None, 0, agent)
+        self.createMinimaxTreeHelper(root, depth, agent, gameState)
+        return root
+
+    def minVal(self, node: Node):
+        if node.isLeaf():
+            node.eval = self.evaluationFunction(node.getState())
+            return node.eval
+        v = float('inf')
+        for child in node.getChildren():
+            if child.getAgent() == 0:
+                v = min(v, self.maxVal(child))
+            else:
+                v = min(v, self.minVal(child))
+        node.eval = v
+        return v
+
+    def maxVal(self, node: Node):
+        if node.isLeaf():
+            node.eval = self.evaluationFunction(node.getState())
+            return node.eval
+        v = float('-inf')
+        for child in node.getChildren():
+            if child.getAgent() == 0:
+                v = max(v, self.maxVal(child))
+            else:
+                v = max(v, self.minVal(child))
+        node.eval = v
+        return v
 
     def getAction(self, gameState: GameState):
         """
@@ -171,7 +272,13 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        minimax_tree = self.createMinimaxTree(gameState, 0, 0)
+
+        max_val = self.maxVal(minimax_tree)
+        # printTree(minimax_tree)
+
+        return minimax_tree.getChildren()[minimax_tree.getChildren().index(
+            next(filter(lambda x: x.eval == max_val, minimax_tree.getChildren())))].getAction()
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
