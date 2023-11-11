@@ -446,8 +446,8 @@ def betterEvaluationFunction(currentGameState: GameState):
         capsules) != 0 else 0
 
     score -= closest_food
-    score += closest_ghost_distance
-    score -= closest_capsule
+    score += closest_ghost_distance * 0.6
+    score -= closest_capsule * 5
     # Find closest capsule
     score += total_timer * 5
     score -= len(food)
