@@ -364,6 +364,48 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       Your expectimax agent (question 4)
     """
 
+    def createExpectimaxTreeHelper(self, node: Node, depth, agent, gameState: GameState):
+        if depth == self.depth or node.getState().isWin() or node.getState().isLose():
+            return
+        actions = node.getState().getLegalActions(agent)
+        for action in actions:
+            child = Node(node.getState().generateSuccessor(agent, action), action, node, node.getDepth() + 1,
+                         (agent + 1) % gameState.getNumAgents())
+            node.addChild(child)
+            self.createExpectimaxTreeHelper(child, depth + 1 if (agent + 1) % gameState.getNumAgents() == 0 else depth,
+                                            (agent + 1) % gameState.getNumAgents(), gameState)
+
+    def createExpectimaxTree(self, gameState: GameState, depth, agent):
+        root = Node(gameState, None, None, 0, agent)
+        self.createExpectimaxTreeHelper(root, depth, agent, gameState)
+        return root
+
+    def minVal(self, node: Node):
+        if node.isLeaf():
+            node.eval = self.evaluationFunction(node.getState())
+            return node.eval
+        v = 0
+        for child in node.getChildren():
+            if child.getAgent() == 0:
+                v += self.maxVal(child)
+            else:
+                v += self.minVal(child)
+        node.eval = v / len(node.getChildren())
+        return node.eval
+
+    def maxVal(self, node: Node):
+        if node.isLeaf():
+            node.eval = self.evaluationFunction(node.getState())
+            return node.eval
+        v = float('-inf')
+        for child in node.getChildren():
+            if child.getAgent() == 0:
+                v = max(v, self.maxVal(child))
+            else:
+                v = max(v, self.minVal(child))
+        node.eval = v
+        return v
+
     def getAction(self, gameState: GameState):
         """
         Returns the expectimax action using self.depth and self.evaluationFunction
@@ -372,7 +414,10 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        tree = self.createExpectimaxTree(gameState, 0, 0)
+        max_val = self.maxVal(tree)
+        return tree.getChildren()[tree.getChildren().index(
+            next(filter(lambda x: x.eval == max_val, tree.getChildren())))].getAction()
 
 
 def betterEvaluationFunction(currentGameState: GameState):
