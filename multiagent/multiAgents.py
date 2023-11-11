@@ -272,7 +272,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
         minimax_tree = self.createMinimaxTree(gameState, 0, 0)
 
         max_val = self.maxVal(minimax_tree)
@@ -410,7 +409,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
         tree = self.createExpectimaxTree(gameState, 0, 0)
         max_val = self.maxVal(tree)
         return tree.getChildren()[tree.getChildren().index(
@@ -424,8 +422,38 @@ def betterEvaluationFunction(currentGameState: GameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    if currentGameState.isLose():
+        return float("-inf")
+    if currentGameState.isWin():
+        return float("inf")
+
+    score = currentGameState.getScore()
+
+    food = currentGameState.getFood().asList()
+    ghosts = currentGameState.getGhostStates()
+    capsules = currentGameState.getCapsules()
+
+    total_timer = sum([ghostState.scaredTimer for ghostState in ghosts])
+    closest_food = min([manhattanDistance(currentGameState.getPacmanPosition(), f) for f in food]) if len(
+        food) != 0 else 0
+    closest_ghost_distance = min([manhattanDistance(currentGameState.getPacmanPosition(),
+                                                    g.getPosition()) for g in ghosts])
+    closest_ghost = [g for g in ghosts if manhattanDistance(currentGameState.getPacmanPosition(),
+                                                            g.getPosition()) == closest_ghost_distance][0]
+
+    closest_capsule = min([manhattanDistance(currentGameState.getPacmanPosition(), c) for c in capsules]) if len(
+        capsules) != 0 else 0
+
+    score -= closest_food
+    score += closest_ghost_distance
+    score -= closest_capsule
+    # Find closest capsule
+    score += total_timer * 5
+    score -= len(food)
+    score += (closest_ghost.scaredTimer > 0) * 5
+
+    return score
 
 
 # Abbreviation
