@@ -445,13 +445,19 @@ def betterEvaluationFunction(currentGameState: GameState):
     closest_capsule = min([manhattanDistance(currentGameState.getPacmanPosition(), c) for c in capsules]) if len(
         capsules) != 0 else 0
 
+    # Quantitative values
+    score -= 1 / len(food) if len(food) != 0 else 0
+    score -= 1 / len(ghosts) if len(ghosts) != 0 else 0
+    score -= 1 / len(capsules) if len(capsules) != 0 else 0
+
+    # Distance values
     score -= closest_food
+    score -= closest_capsule / 10
     score += closest_ghost_distance * 0.6
-    score -= closest_capsule * 5
-    # Find closest capsule
+
+    # Incentives for scaring ghosts
     score += total_timer * 5
-    score -= len(food)
-    score += (closest_ghost.scaredTimer > 0) * 5
+    score += closest_ghost.scaredTimer > 0
 
     return score
 
