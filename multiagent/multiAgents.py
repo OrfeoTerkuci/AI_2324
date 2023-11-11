@@ -191,6 +191,7 @@ class Node:
     def __hash__(self):
         return hash(self.state)
 
+
 def printTree(tree):
     printTreeHelper(tree, 0)
 
@@ -286,12 +287,76 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     Your minimax agent with alpha-beta pruning (question 3)
     """
 
+    def createAlphaBetaTreeHelper(self, node: Node, depth, agent, gameState: GameState, alpha, beta):
+        if depth == self.depth or node.getState().isWin() or node.getState().isLose():
+            return
+        actions = node.getState().getLegalActions(agent)
+        for action in actions:
+            child = Node(node.getState().generateSuccessor(agent, action), action, node, node.getDepth() + 1,
+                         (agent + 1) % gameState.getNumAgents())
+            node.addChild(child)
+            self.createAlphaBetaTreeHelper(child, depth + 1 if (agent + 1) % gameState.getNumAgents() == 0 else depth,
+                                           (agent + 1) % gameState.getNumAgents(), gameState, alpha, beta)
+            # EVALUATE
+            if agent == 0:
+                self.maxVal(child.parent, alpha, beta)
+                if child.eval > beta:
+                    return
+                alpha = max(alpha, child.eval)
+            else:
+                self.minVal(child.parent, alpha, beta)
+                if child.eval < alpha:
+                    return
+                beta = min(beta, child.eval)
+
+    def createAlphaBetaTree(self, gameState: GameState, depth, agent):
+        root = Node(gameState, None, None, 0, agent)
+        self.createAlphaBetaTreeHelper(root, depth, agent, gameState, float('-inf'), float('inf'))
+        return root
+
+    def minVal(self, node: Node, alpha, beta):
+        if node.isLeaf():
+            node.eval = self.evaluationFunction(node.getState())
+            return node.eval
+        v = float('inf')
+        for child in node.getChildren():
+            if child.getAgent() == 0:
+                v = min(v, self.maxVal(child, alpha, beta))
+            else:
+                v = min(v, self.minVal(child, alpha, beta))
+            if v < alpha:
+                node.eval = v
+                return v
+            beta = min(beta, v)
+        node.eval = v
+        return v
+
+    def maxVal(self, node: Node, alpha, beta):
+        if node.isLeaf():
+            node.eval = self.evaluationFunction(node.getState())
+            return node.eval
+        v = float('-inf')
+        for child in node.getChildren():
+            if child.getAgent() == 0:
+                v = max(v, self.maxVal(child, alpha, beta))
+            else:
+                v = max(v, self.minVal(child, alpha, beta))
+            if v > beta:
+                node.eval = v
+                return v
+            alpha = max(alpha, v)
+        node.eval = v
+        return v
+
     def getAction(self, gameState: GameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        tree = self.createAlphaBetaTree(gameState, 0, 0)
+        max_val = self.maxVal(tree, float('-inf'), float('inf'))
+        return tree.getChildren()[tree.getChildren().index(
+            next(filter(lambda x: x.eval == max_val, tree.getChildren())))].getAction()
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
