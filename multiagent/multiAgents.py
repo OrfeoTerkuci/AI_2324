@@ -380,7 +380,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         self.createExpectimaxTreeHelper(root, depth, agent, gameState)
         return root
 
-    def minVal(self, node: Node):
+    def expVal(self, node: Node):
         if node.isLeaf():
             node.eval = self.evaluationFunction(node.getState())
             return node.eval
@@ -389,7 +389,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             if child.getAgent() == 0:
                 v += self.maxVal(child)
             else:
-                v += self.minVal(child)
+                v += self.expVal(child)
         node.eval = v / len(node.getChildren())
         return node.eval
 
@@ -399,10 +399,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             return node.eval
         v = float('-inf')
         for child in node.getChildren():
-            if child.getAgent() == 0:
-                v = max(v, self.maxVal(child))
-            else:
-                v = max(v, self.minVal(child))
+            v = max(v, self.expVal(child))
         node.eval = v
         return v
 
