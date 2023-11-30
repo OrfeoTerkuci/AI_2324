@@ -15,6 +15,9 @@
 import random
 import itertools
 from typing import List, Dict, Tuple
+
+import numpy as np
+
 import busters
 import game
 import bayesNet as bn
@@ -350,9 +353,11 @@ class DiscreteDistribution(dict):
         >>> empty
         {}
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+        if not self.total():
+            return
+        total = self.total()
+        for key in self.keys():
+            self[key] = self[key] / total
 
     def sample(self):
         """
@@ -375,9 +380,20 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+        import random
+        # from numpy.random import choice
+        #
+        # # Use numpy choice to choose one element from self.keys with the probabilities being the value of each key
+        # self.normalize()
+        #
+        # draw = choice(list(self.keys()), 1, p=list(self.values()))
+        # return draw[0]
+        #
+        indexes = []
+        for key, val in self.items():
+            indexes += [key] * val
+
+        return indexes[random.randint(0, len(indexes) - 1)]
 
 
 class InferenceModule:
