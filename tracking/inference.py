@@ -380,20 +380,7 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        import random
-        # from numpy.random import choice
-        #
-        # # Use numpy choice to choose one element from self.keys with the probabilities being the value of each key
-        # self.normalize()
-        #
-        # draw = choice(list(self.keys()), 1, p=list(self.values()))
-        # return draw[0]
-        #
-        indexes = []
-        for key, val in self.items():
-            indexes += [key] * val
-
-        return indexes[random.randint(0, len(indexes) - 1)]
+        return [val for val in self.keys() for _ in range(int(self[val]))][random.randint(0, int(self.total()) - 1)]
 
 
 class InferenceModule:
@@ -630,7 +617,6 @@ class ExactInference(InferenceModule):
                 newBeliefs[newPos] += self.beliefs[oldPos] * prob
         # 5. Normalize the new beliefs
         self.beliefs = newBeliefs
-
 
     def getBeliefDistribution(self):
         return self.beliefs
