@@ -16,9 +16,8 @@ from bayesNet import Factor
 import functools
 from util import raiseNotDefined
 
+
 def joinFactorsByVariableWithCallTracking(callTrackingList=None):
-
-
     def joinFactorsByVariable(factors: List[Factor], joinVariable: str):
         """
         Input factors is a list of factors.
@@ -37,23 +36,26 @@ def joinFactorsByVariableWithCallTracking(callTrackingList=None):
         if not (callTrackingList is None):
             callTrackingList.append(('join', joinVariable))
 
-        currentFactorsToJoin =    [factor for factor in factors if joinVariable in factor.variablesSet()]
+        currentFactorsToJoin = [factor for factor in factors if joinVariable in factor.variablesSet()]
         currentFactorsNotToJoin = [factor for factor in factors if joinVariable not in factor.variablesSet()]
 
         # typecheck portion
-        numVariableOnLeft = len([factor for factor in currentFactorsToJoin if joinVariable in factor.unconditionedVariables()])
+        numVariableOnLeft = len(
+            [factor for factor in currentFactorsToJoin if joinVariable in factor.unconditionedVariables()])
         if numVariableOnLeft > 1:
             print("Factor failed joinFactorsByVariable typecheck: ", factor)
-            raise ValueError("The joinBy variable can only appear in one factor as an \nunconditioned variable. \n" +  
-                               "joinVariable: " + str(joinVariable) + "\n" +
-                               ", ".join(map(str, [factor.unconditionedVariables() for factor in currentFactorsToJoin])))
-        
+            raise ValueError("The joinBy variable can only appear in one factor as an \nunconditioned variable. \n" +
+                             "joinVariable: " + str(joinVariable) + "\n" +
+                             ", ".join(map(str, [factor.unconditionedVariables() for factor in currentFactorsToJoin])))
+
         joinedFactor = joinFactors(currentFactorsToJoin)
         return currentFactorsNotToJoin, joinedFactor
 
     return joinFactorsByVariable
 
+
 joinFactorsByVariable = joinFactorsByVariableWithCallTracking()
+
 
 ########### ########### ###########
 ########### QUESTION 2  ###########
@@ -95,22 +97,34 @@ def joinFactors(factors: List[Factor]):
         if len(intersect) > 0:
             print("Factor failed joinFactors typecheck: ", factor)
             raise ValueError("unconditionedVariables can only appear in one factor. \n"
-                    + "unconditionedVariables: " + str(intersect) + 
-                    "\nappear in more than one input factor.\n" + 
-                    "Input factors: \n" +
-                    "\n".join(map(str, factors)))
+                             + "unconditionedVariables: " + str(intersect) +
+                             "\nappear in more than one input factor.\n" +
+                             "Input factors: \n" +
+                             "\n".join(map(str, factors)))
 
+    unconditioned_vars = set()
+    conditioned_vars = set()
+    for factor in factors:
+        unconditioned_vars.update(factor.unconditionedVariables())
+        conditioned_vars.update(factor.conditionedVariables())
+    for var in unconditioned_vars:
+        if var in conditioned_vars:
+            conditioned_vars.remove(var)
+    variableDomainsDict = [factor.variableDomainsDict() for factor in factors][0]
+    new_factor = Factor(unconditioned_vars, conditioned_vars, variableDomainsDict)
+    for assignment in new_factor.getAllPossibleAssignmentDicts():
+        prob = 1
+        for factor in factors:
+            prob *= factor.getProbability(assignment)
+        new_factor.setProbability(assignment, prob)
+    return new_factor
 
-    "*** YOUR CODE HERE ***"
-    raiseNotDefined()
-    "*** END YOUR CODE HERE ***"
 
 ########### ########### ###########
 ########### QUESTION 3  ###########
 ########### ########### ###########
 
 def eliminateWithCallTracking(callTrackingList=None):
-
     def eliminate(factor: Factor, eliminationVariable: str):
         """
         Input factor is a single factor.
@@ -121,7 +135,7 @@ def eliminateWithCallTracking(callTrackingList=None):
         variables for the factor obtained by eliminating the variable
         eliminationVariable.
 
-        Return a new factor where all of the rows mentioning
+        Return a new factor where all the rows mentioning
         eliminationVariable are summed with rows that match
         assignments on the other variables.
 
@@ -141,16 +155,16 @@ def eliminateWithCallTracking(callTrackingList=None):
         if eliminationVariable not in factor.unconditionedVariables():
             print("Factor failed eliminate typecheck: ", factor)
             raise ValueError("Elimination variable is not an unconditioned variable " \
-                            + "in this factor\n" + 
-                            "eliminationVariable: " + str(eliminationVariable) + \
-                            "\nunconditionedVariables:" + str(factor.unconditionedVariables()))
-        
+                             + "in this factor\n" +
+                             "eliminationVariable: " + str(eliminationVariable) + \
+                             "\nunconditionedVariables:" + str(factor.unconditionedVariables()))
+
         if len(factor.unconditionedVariables()) == 1:
             print("Factor failed eliminate typecheck: ", factor)
             raise ValueError("Factor has only one unconditioned variable, so you " \
-                    + "can't eliminate \nthat variable.\n" + \
-                    "eliminationVariable:" + str(eliminationVariable) + "\n" +\
-                    "unconditionedVariables: " + str(factor.unconditionedVariables()))
+                             + "can't eliminate \nthat variable.\n" + \
+                             "eliminationVariable:" + str(eliminationVariable) + "\n" + \
+                             "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
         "*** YOUR CODE HERE ***"
         raiseNotDefined()
@@ -158,5 +172,5 @@ def eliminateWithCallTracking(callTrackingList=None):
 
     return eliminate
 
-eliminate = eliminateWithCallTracking()
 
+eliminate = eliminateWithCallTracking()
