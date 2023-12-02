@@ -453,9 +453,9 @@ class InferenceModule:
         given gameState. You must first place the ghost in the gameState, using
         setGhostPosition below.
         """
-        if index == None:
+        if index is None:
             index = self.index - 1
-        if agent == None:
+        if agent is None:
             agent = self.ghostAgent
         return self.getPositionDistributionHelper(gameState, pos, index, agent)
 
@@ -467,9 +467,21 @@ class InferenceModule:
         """
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        # P (noisyDistance | trueDistance)
+
+        # Calculate true distance between pacman and ghost
+        distance = manhattanDistance(pacmanPosition, ghostPosition)
+
+        # Calculate observation probability
+        observation = busters.getObservationProbability(noisyDistance if noisyDistance is not None else 0, distance)
+        # If a ghost is in jail, observation is 1 if noisyDistance is None, 0 otherwise
+        if ghostPosition == jailPosition:
+            return 1 if noisyDistance is None else 0
+
+        # Return observation probability if there is a noisy distance, 0 otherwise
+        return observation if noisyDistance is not None else 0
+
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
@@ -581,9 +593,16 @@ class ExactInference(InferenceModule):
         current position. However, this is not a problem, as Pacman's current
         position is known.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        # Get the jail position and pacman position
+        jailPos = self.getJailPosition()
+        pacmanPos = gameState.getPacmanPosition()
+
+        # Update beliefs for each position
+        for pos in self.allPositions:
+            self.beliefs[pos] *= self.getObservationProb(observation, pacmanPos, pos, jailPos)
+
+        # Normalize beliefs
         self.beliefs.normalize()
 
     ########### ########### ###########
