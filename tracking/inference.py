@@ -482,7 +482,6 @@ class InferenceModule:
         # Return observation probability if there is a noisy distance, 0 otherwise
         return observation if noisyDistance is not None else 0
 
-
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
         Set the position of the ghost for this inference module to the specified
@@ -618,9 +617,20 @@ class ExactInference(InferenceModule):
         Pacman's current position. However, this is not a problem, as Pacman's
         current position is known.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        # 1. Initialize a new DiscreteDistribution object to store the updated beliefs
+        newBeliefs = DiscreteDistribution()
+
+        # 2. Iterate over all possible positions (oldPos) in the current belief distribution
+        for oldPos in self.allPositions:
+            # 3. Get the new position distribution for the old position
+            newPosDist = self.getPositionDistribution(gameState, oldPos)
+            # 4. Update the new beliefs for each new position
+            for newPos, prob in newPosDist.items():
+                newBeliefs[newPos] += self.beliefs[oldPos] * prob
+        # 5. Normalize the new beliefs
+        self.beliefs = newBeliefs
+
 
     def getBeliefDistribution(self):
         return self.beliefs
