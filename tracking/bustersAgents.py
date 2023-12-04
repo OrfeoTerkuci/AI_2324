@@ -10,7 +10,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+import heapq
 
 import util
 from util import raiseNotDefined
@@ -173,5 +173,22 @@ class GreedyBustersAgent(BustersAgent):
         bestAction = min(legal,
                          key=lambda action: self.distancer.getDistance(Actions.getSuccessor(pacmanPosition, action),
                                                                        closestGhostPosition))
+
+        # # Compute the expected utility of each action
+        # expectedUtilities = []
+        # for action in legal:
+        #     successorPosition = Actions.getSuccessor(pacmanPosition, action)
+        #     expectedUtility = 0
+        #     for beliefs in livingGhostPositionDistributions:
+        #         for pos, belief in beliefs.items():
+        #             if belief > 0:
+        #                 if self.distancer.getDistance(successorPosition, pos) == 0:
+        #                     expectedUtility += belief / 0.0001
+        #                 else:
+        #                     expectedUtility += belief / self.distancer.getDistance(successorPosition, pos)
+        #     expectedUtilities.append(expectedUtility)
+        #
+        # # Choose the action that maximizes the expected utility
+        # bestAction = legal[expectedUtilities.index(max(expectedUtilities))]
 
         return bestAction

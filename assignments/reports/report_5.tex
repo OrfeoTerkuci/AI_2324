@@ -6,6 +6,7 @@
 
 % Packages
 \usepackage{amsmath}
+\usepackage{booktabs}
 \newcommand*{\prob}[1]{\ensuremath{\mathsf{P}(#1)}}
 % Document
 \begin{document}
@@ -36,14 +37,31 @@ This is obtained from the \textbf{getPositionDistribution} method
 This is stored in \textbf{self.beliefs[oldPos]}
 \end{itemize}
 \section*{Question 8}
-\subsection*{Can you think of a better strategy than the greedy strategy?}
-
-\subsection*{Describe how Pacman can use the probability values to their advantage and more effectively hunt ghosts}
+\subsection*{Can you think of a better strategy than the greedy strategy? Describe how Pacman can use the probability values to their advantage and more effectively hunt ghosts}
+A better strategy than the greedy strategy could be a probabilistic approach that takes into account the belief distributions of the ghosts' positions.
+This strategy would not only consider the most likely position of each ghost, but also the probability of the ghost being in each position.
+This way, Pacman can make more informed decisions and more effectively hunt the ghosts.
+\begin{itemize}
+    \item Here is the pseudocode for this strategy:
+    \item Get the current position of Pacman from the game state.
+    \item Get the list of legal actions that Pacman can take from the game state.
+    \item Initialize an empty list to store the expected utility of each action.
+    \item For each action, compute the successor position of Pacman if that action is taken.
+    \item For each successor position, compute the expected utility by summing the product of the belief and the inverse of the maze distance for each ghost.
+    \item Choose the action that maximizes the expected utility.
+\end{itemize}
 
 \subsection*{Mark the average score of the greedy strategy and of your alternative in your report.}
 
 \section*{Question 14}
 \subsection*{In both tests, pacman knows that the ghostswill move to the sides of the gameboard. What is different between the tests,and why?}
 
+    Average score for greedy strategy: 754.700\\
+    Average score for probabilistic approach: 763.000\\
+    The reason for this difference could be due to the nature of the strategies.
+    The greedy strategy only considers the most likely position of each ghost and chooses an action that minimizes the maze distance to the closest ghost.
+    This can sometimes lead to suboptimal decisions, as it does not take into account the overall layout of the maze or the probability of the ghost being in each position.
+    On the other hand, the alternative strategy takes into account the belief distributions of the ghosts' positions.
+    It not only considers the most likely position of each ghost, but also the probability of the ghost being in each position.
 
 \end{document}
