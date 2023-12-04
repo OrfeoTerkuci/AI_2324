@@ -1,0 +1,49 @@
+%! Author = oterk
+%! Date = 04/12/2023
+
+% Preamble
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{amsmath}
+\newcommand*{\prob}[1]{\ensuremath{\mathsf{P}(#1)}}
+% Document
+\begin{document}
+
+\section*{Report 5: Pacman Ghostbusters}
+
+\section*{Question 6}
+\subsection*{Write down the equation of the inference problem you are trying to solve}
+The equation we are trying to solve in the function \textbf{observeUpdate()} is:\\
+    $ \prob{X \mid Z} = \dfrac{\prob{Z \mid X} \cdot \prob{X}}{\prob{Z}} $
+
+\section*{Question 7}
+\subsection*{Write down the equation of the inference problem you are trying to solve}
+% P(newPos | oldPos, gameState) = Σ P(newPos | oldPos) * P(oldPos | gameState)
+The equation we are trying to solve in the function \textbf{elapseTime()} is:\\
+
+    $ \prob{X \mid Y, Z} = \sum \prob{X \mid Y} \cdot \prob{Y \mid Z} $
+
+Where:\\
+\begin{itemize}
+\item $ X = newPos $
+\item $ Y = oldPos $
+\item $ Z = gameState $
+\item $ \prob{X \mid Y, Z} $ is the updated belief about the ghost being at position newPos given the old position oldPos and the current game state gameState. This is what we are trying to compute.
+\item $ \prob{X \mid Y} $ Is the probability of the ghost moving to position newPos given that it was at position oldPos.
+This is obtained from the \textbf{getPositionDistribution} method
+\item $ \prob{Y \mid Z} $ is the current belief about the ghost being at position oldPos given the current game state \textbf{gameState}.
+This is stored in \textbf{self.beliefs[oldPos]}
+\end{itemize}
+\section*{Question 8}
+\subsection*{Can you think of a better strategy than the greedy strategy?}
+
+\subsection*{Describe how Pacman can use the probability values to their advantage and more effectively hunt ghosts}
+
+\subsection*{Mark the average score of the greedy strategy and of your alternative in your report.}
+
+\section*{Question 14}
+\subsection*{In both tests, pacman knows that the ghostswill move to the sides of the gameboard. What is different between the tests,and why?}
+
+
+\end{document}
