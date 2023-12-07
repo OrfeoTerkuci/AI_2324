@@ -30,13 +30,15 @@ Where:\\
 \item $ X = newPos $
 \item $ Y = oldPos $
 \item $ Z = gameState $
-\item $ \prob{X \mid Y, Z} $ is the updated belief about the ghost being at position newPos given the old position oldPos and the current game state gameState. This is what we are trying to compute.
+\item $ \prob{X \mid Y, Z} $ is the updated belief about the ghost being at position newPos given the old position oldPos and the current game state gameState.
+This is what we are trying to compute.
 \item $ \prob{X \mid Y} $ Is the probability of the ghost moving to position newPos given that it was at position oldPos.
 This is obtained from the \textbf{getPositionDistribution} method
 \item $ \prob{Y \mid Z} $ is the current belief about the ghost being at position oldPos given the current game state \textbf{gameState}.
 This is stored in \textbf{self.beliefs[oldPos]}
 \end{itemize}
 \section*{Question 8}
+
 \subsection*{Can you think of a better strategy than the greedy strategy? Describe how Pacman can use the probability values to their advantage and more effectively hunt ghosts}
 A better strategy than the greedy strategy could be a probabilistic approach that takes into account the belief distributions of the ghosts' positions.
 This strategy would not only consider the most likely position of each ghost, but also the probability of the ghost being in each position.
@@ -53,9 +55,6 @@ This way, Pacman can make more informed decisions and more effectively hunt the 
 
 \subsection*{Mark the average score of the greedy strategy and of your alternative in your report.}
 
-\section*{Question 14}
-\subsection*{In both tests, pacman knows that the ghostswill move to the sides of the gameboard. What is different between the tests,and why?}
-
     Average score for greedy strategy: 754.700\\
     Average score for probabilistic approach: 763.000\\
     The reason for this difference could be due to the nature of the strategies.
@@ -63,5 +62,14 @@ This way, Pacman can make more informed decisions and more effectively hunt the 
     This can sometimes lead to suboptimal decisions, as it does not take into account the overall layout of the maze or the probability of the ghost being in each position.
     On the other hand, the alternative strategy takes into account the belief distributions of the ghosts' positions.
     It not only considers the most likely position of each ghost, but also the probability of the ghost being in each position.
+
+\section*{Question 14}
+\subsection*{In both tests, pacman knows that the ghostswill move to the sides of the gameboard. What is different between the tests,and why?}
+
+    The difference between the tests is that in \textbf{q14/3-JointParticleFull},
+    Pacman uses his observations to update his belief about the ghosts' positions, while in \textbf{q14/1-JointParticlePredict}
+    and \textbf{q14/2-JointParticlePredict}, he only predicts the new positions of the ghosts based on the elapsed time.\\\\
+    This difference is significant because the ability to update beliefs based on observations allows Pacman to have a
+    more accurate understanding of the ghosts' positions, which is crucial for his decision-making process.
 
 \end{document}
