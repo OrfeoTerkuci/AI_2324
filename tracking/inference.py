@@ -868,10 +868,6 @@ class JointParticleFilter(ParticleFilter):
             # 9. Resample the particles
             self.particles = [newBeliefs.sample() for _ in range(self.numParticles)]
 
-
-
-
-
     ########### ########### ###########
     ########### QUESTION 14 ###########
     ########### ########### ###########
@@ -885,10 +881,11 @@ class JointParticleFilter(ParticleFilter):
         for oldParticle in self.particles:
             newParticle = list(oldParticle)  # A list of ghost positions
 
-            # now loop through and update each entry in newParticle...
-            "*** YOUR CODE HERE ***"
-            raiseNotDefined()
-            """*** END YOUR CODE HERE ***"""
+            # Now loop through and update each entry in newParticle...
+            for i in range(self.numGhosts):
+                newPosDist = self.getPositionDistribution(gameState, oldParticle, i, self.ghostAgents[i])
+                # 4. Update the new beliefs for each new position
+                newParticle[i] = newPosDist.sample()
             newParticles.append(tuple(newParticle))
         self.particles = newParticles
 
