@@ -373,9 +373,14 @@ class DiscreteDistribution(dict):
         """
         if not self.total():
             return
+        for key in self.keys():
+            if self[key] / self.total() < 0.001:
+                self[key] = 0.0
         total = self.total()
         for key in self.keys():
             self[key] = self[key] / total
+            if self[key] < 0.001:
+                self[key] = 0.0
 
     def sample(self):
         """
@@ -398,7 +403,7 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        return [val for val in self.keys() for _ in range(int(self[val]))][random.randint(0, int(self.total()) - 1)]
+        return random.choices(list(self.keys()), weights=list(self.values()))[0]
 
 
 class InferenceModule:
@@ -665,9 +670,9 @@ class ParticleFilter(InferenceModule):
         self.particles for the list of particles.
         """
         self.particles = []
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        for particle in range(self.numParticles):
+            self.particles.append(self.legalPositions[particle % len(self.legalPositions)])
 
     def getBeliefDistribution(self):
         """
@@ -677,9 +682,19 @@ class ParticleFilter(InferenceModule):
 
         This function should return a normalized distribution.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        # 1. Initialize a new DiscreteDistribution object to store the updated beliefs
+        newBeliefs = DiscreteDistribution()
+
+        # 2. Iterate over all particles
+        for particle in self.particles:
+            # 3. Update the new beliefs for each particle
+            newBeliefs[particle] += 1
+
+        # 4. Normalize the new beliefs
+        newBeliefs.normalize()
+
+        return newBeliefs
 
     ########### ########### ###########
     ########### QUESTION 10 ###########
@@ -697,9 +712,27 @@ class ParticleFilter(InferenceModule):
         be reinitialized by calling initializeUniformly. The total method of
         the DiscreteDistribution may be useful.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        # Get the jail position and pacman position
+        jailPos = self.getJailPosition()
+        pacmanPos = gameState.getPacmanPosition()
+
+        newBeliefs = DiscreteDistribution()
+
+        # 2. Iterate over all particles
+        for particle in self.particles:
+            # 3. Update the new beliefs for each particle
+            newBeliefs[particle] += self.getObservationProb(observation, pacmanPos, particle, jailPos)
+
+        # 4. Normalize the new beliefs
+        newBeliefs.normalize()
+
+        # 5. If all particles have zero weight, reinitialize the particles
+        if newBeliefs.total() == 0:
+            self.initializeUniformly(gameState)
+        else:
+            # 6. Resample the particles
+            self.particles = [newBeliefs.sample() for _ in range(self.numParticles)]
 
     ########### ########### ###########
     ########### QUESTION 11 ###########
@@ -710,9 +743,22 @@ class ParticleFilter(InferenceModule):
         Sample each particle's next state based on its current state and the
         gameState.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        newBeliefs = DiscreteDistribution()
+
+        # 2. Iterate over all particles
+        for particle in self.particles:
+            # 3. Get the new position distribution for the particle
+            newPosDist = self.getPositionDistribution(gameState, particle)
+            # 4. Update the new beliefs for each new position
+            for newPos, prob in newPosDist.items():
+                newBeliefs[newPos] += prob
+
+        # 5. Normalize the new beliefs
+        newBeliefs.normalize()
+
+        # 6. Resample the particles
+        self.particles = [newBeliefs.sample() for _ in range(self.numParticles)]
 
 
 class JointParticleFilter(ParticleFilter):
