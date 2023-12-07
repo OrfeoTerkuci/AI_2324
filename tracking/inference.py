@@ -810,8 +810,6 @@ class JointParticleFilter(ParticleFilter):
         # 7. Normalize the new beliefs
         newBeliefs.normalize()
 
-
-
     def addGhostAgent(self, agent):
         """
         Each ghost agent is registered separately and stored (in case they are
@@ -844,9 +842,35 @@ class JointParticleFilter(ParticleFilter):
         be reinitialized by calling initializeUniformly. The total method of
         the DiscreteDistribution may be useful.
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        pacmanPos = gameState.getPacmanPosition()
+        newBeliefs = DiscreteDistribution()
+
+        # 2. Iterate over all particles
+        for particle in self.particles:
+            # 3. Update belief for each ghost
+            belief = 1
+            for i in range(self.numGhosts):
+                # 4. Get the jail position
+                jailPos = self.getJailPosition(i)
+                # 5. Update the belief for each ghost
+                belief *= self.getObservationProb(observation[i], pacmanPos, particle[i], jailPos)
+            # 6. Update the new beliefs for each particle
+            newBeliefs[particle] += belief
+
+        # 7. Normalize the new beliefs
+        newBeliefs.normalize()
+
+        # 8. If all particles have zero weight, reinitialize the particles
+        if newBeliefs.total() == 0:
+            self.initializeUniformly(gameState)
+        else:
+            # 9. Resample the particles
+            self.particles = [newBeliefs.sample() for _ in range(self.numParticles)]
+
+
+
+
 
     ########### ########### ###########
     ########### QUESTION 14 ###########
