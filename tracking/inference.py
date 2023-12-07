@@ -789,10 +789,28 @@ class JointParticleFilter(ParticleFilter):
         should be evenly distributed across positions in order to ensure a
         uniform prior.
         """
-        self.particles = []
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
-        "*** END YOUR CODE HERE ***"
+
+        # 1. Get all possible permutations of ghost positions
+        permutations = list(itertools.product(self.legalPositions, repeat=self.numGhosts))
+
+        # 2. Shuffle the permutations
+        random.shuffle(permutations)
+
+        # 3. Add the first self.numParticles permutations to the particles
+        self.particles = permutations[:self.numParticles]
+
+        # 4. Create a new DiscreteDistribution object to store the updated beliefs
+        newBeliefs = DiscreteDistribution()
+
+        # 5. Iterate over all particles
+        for particle in self.particles:
+            # 6. Update the new beliefs for each particle
+            newBeliefs[particle] += 1
+
+        # 7. Normalize the new beliefs
+        newBeliefs.normalize()
+
+
 
     def addGhostAgent(self, agent):
         """
