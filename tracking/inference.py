@@ -373,14 +373,9 @@ class DiscreteDistribution(dict):
         """
         if not self.total():
             return
-        for key in self.keys():
-            if self[key] / self.total() < 0.001:
-                self[key] = 0.0
         total = self.total()
         for key in self.keys():
             self[key] = self[key] / total
-            if self[key] < 0.001:
-                self[key] = 0.0
 
     def sample(self):
         """
@@ -602,17 +597,20 @@ class ExactInference(InferenceModule):
         current position. However, this is not a problem, as Pacman's current
         position is known.
         """
-
+        dist = DiscreteDistribution()
         # Get the jail position and pacman position
         jailPos = self.getJailPosition()
         pacmanPos = gameState.getPacmanPosition()
 
         # Update beliefs for each position
         for pos in self.allPositions:
-            self.beliefs[pos] *= self.getObservationProb(observation, pacmanPos, pos, jailPos)
+            prob = self.getObservationProb(observation, pacmanPos, pos, jailPos)
+            dist[pos] = prob * self.beliefs[pos]
 
+        # Update beliefs
+        dist.normalize()
         # Normalize beliefs
-        self.beliefs.normalize()
+        self.beliefs = dist
 
     ########### ########### ###########
     ########### QUESTION 7  ###########
@@ -744,21 +742,19 @@ class ParticleFilter(InferenceModule):
         gameState.
         """
 
-        newBeliefs = DiscreteDistribution()
-
-        # 2. Iterate over all particles
-        for particle in self.particles:
-            # 3. Get the new position distribution for the particle
-            newPosDist = self.getPositionDistribution(gameState, particle)
-            # 4. Update the new beliefs for each new position
-            for newPos, prob in newPosDist.items():
-                newBeliefs[newPos] += prob
-
-        # 5. Normalize the new beliefs
-        newBeliefs.normalize()
-
-        # 6. Resample the particles
-        self.particles = [newBeliefs.sample() for _ in range(self.numParticles)]
+        cache = {}
+        # 1. Iterate over all particles
+        for i in range(self.numParticles):
+            particle = self.particles[i]
+            # 2. If the particle is already in the cache, use the cached particle
+            if particle in cache:
+                self.particles[i] = cache[particle].sample()
+            else:
+                # 3. Get the new position distribution for the particle
+                newPosDist = self.getPositionDistribution(gameState, self.particles[i])
+                # 4. Sample the new position
+                cache[particle] = newPosDist
+                self.particles[i] = newPosDist.sample()
 
 
 class JointParticleFilter(ParticleFilter):
