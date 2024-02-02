@@ -134,7 +134,11 @@ class DigitClassificationModel(object):
 
     def __init__(self):
         # Initialize your model parameters here
-        "*** YOUR CODE HERE ***"
+        # Hidden layer size is 200
+        self.w1 = nn.Parameter(784, 200)  # Weight for first layer
+        self.b1 = nn.Parameter(1, 200)  # Bias for first layer
+        self.w2 = nn.Parameter(200, 10)  # Weight for second layer
+        self.b2 = nn.Parameter(1, 10)  # Bias for second layer
 
     def run(self, x):
         """
@@ -150,7 +154,12 @@ class DigitClassificationModel(object):
             A node with shape (batch_size x 10) containing predicted scores
                 (also called logits)
         """
-        "*** YOUR CODE HERE ***"
+        x = nn.Linear(x, self.w1)
+        x = nn.AddBias(x, self.b1)
+        x = nn.ReLU(x)
+        x = nn.Linear(x, self.w2)
+        x = nn.AddBias(x, self.b2)
+        return x
 
     def get_loss(self, x, y):
         """
@@ -165,14 +174,30 @@ class DigitClassificationModel(object):
             y: a node with shape (batch_size x 10)
         Returns: a loss node
         """
-        "*** YOUR CODE HERE ***"
+        return nn.SoftmaxLoss(self.run(x), y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
-        "*** YOUR CODE HERE ***"
-
+        learning_rate = 0.5
+        # Stop when the accuracy is 97% or greater
+        epoch = 0
+        while True:
+            epoch += 1
+            print(f"Epoch: {epoch}")
+            for x, y in dataset.iterate_once(100):
+                self.run(x)
+                loss = self.get_loss(x, y)
+                grad_w1, grad_b1, grad_w2, grad_b2 = nn.gradients(loss, [self.w1, self.b1, self.w2, self.b2])
+                self.w1.update(grad_w1, -learning_rate)
+                self.b1.update(grad_b1, -learning_rate)
+                self.w2.update(grad_w2, -learning_rate)
+                self.b2.update(grad_b2, -learning_rate)
+            acc = dataset.get_validation_accuracy()
+            print(f"Accuracy: {acc}")
+            if acc >= 0.97:
+                return
 
 class LanguageIDModel(object):
     """
