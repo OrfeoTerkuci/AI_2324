@@ -116,7 +116,6 @@ class RegressionModel(object):
             self.b2.update(grad_b2, -learning_rate)
 
 
-
 class DigitClassificationModel(object):
     """
     A model for handwritten digit classification using the MNIST dataset.
@@ -199,6 +198,7 @@ class DigitClassificationModel(object):
             if acc >= 0.97:
                 return
 
+
 class LanguageIDModel(object):
     """
     A model for language identification at a single-word granularity.
@@ -217,7 +217,14 @@ class LanguageIDModel(object):
         self.languages = ["English", "Spanish", "Finnish", "Dutch", "Polish"]
 
         # Initialize your model parameters here
-        "*** YOUR CODE HERE ***"
+        self.w1 = nn.Parameter(47, 100)  # Weight for first layer
+        self.b1 = nn.Parameter(1, 100)    # Bias for first layer
+        self.w_hidden = nn.Parameter(100, 100)  # Weight for hidden layer
+        self.b_hidden = nn.Parameter(1, 100)    # Bias for hidden layer
+        self.w_hidden2 = nn.Parameter(100, 100)  # Weight for hidden layer
+        self.b_hidden2 = nn.Parameter(1, 100)    # Bias for hidden layer
+        self.w2 = nn.Parameter(100, 5)    # Weight for second layer
+        self.b2 = nn.Parameter(1, 5)      # Bias for second layer
 
     def run(self, xs):
         """
@@ -248,7 +255,21 @@ class LanguageIDModel(object):
             A node with shape (batch_size x 5) containing predicted scores
                 (also called logits)
         """
-        "*** YOUR CODE HERE ***"
+        f_val = None
+        for x in xs:
+            if f_val is None:
+                f_val = nn.Linear(x, self.w1)
+            else:
+                # z = nn.Add(nn.Linear(x, W), nn.Linear(h, W_hidden))
+                f_val = nn.Add(nn.Linear(x, self.w1), nn.Linear(f_val, self.w_hidden))
+                f_val = nn.AddBias(f_val, self.b1)
+                f_val = nn.ReLU(f_val)
+                f_val = nn.Add(f_val, nn.Linear(f_val, self.w_hidden2))
+                f_val = nn.AddBias(f_val, self.b_hidden2)
+                f_val = nn.ReLU(f_val)
+        f_val = nn.Linear(f_val, self.w2)
+        f_val = nn.AddBias(f_val, self.b2)
+        return f_val
 
     def get_loss(self, xs, y):
         """
@@ -264,10 +285,31 @@ class LanguageIDModel(object):
             y: a node with shape (batch_size x 5)
         Returns: a loss node
         """
-        "*** YOUR CODE HERE ***"
+        return nn.SoftmaxLoss(self.run(xs), y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
-        "*** YOUR CODE HERE ***"
+        learning_rate = 0.1
+        epoch = 0
+        while True:
+            epoch += 1
+            print(f"Epoch: {epoch}")
+            for x, y in dataset.iterate_once(100):
+                self.run(x)
+                loss = self.get_loss(x, y)
+                grad_w1, grad_b1, grad_w_hidden, grad_b_hidden, grad_w_hidden2, grad_b_hidden2, grad_w2, grad_b2 =\
+                    nn.gradients(loss, [self.w1, self.b1, self.w_hidden, self.b_hidden, self.w_hidden2,
+                                        self.b_hidden2, self.w2, self.b2])
+                self.w1.update(grad_w1, -learning_rate)
+                self.b1.update(grad_b1, -learning_rate)
+                self.w_hidden.update(grad_w_hidden, -learning_rate)
+                self.b_hidden.update(grad_b_hidden, -learning_rate)
+                self.w_hidden2.update(grad_w_hidden2, -learning_rate)
+                self.b_hidden2.update(grad_b_hidden2, -learning_rate)
+                self.w2.update(grad_w2, -learning_rate)
+                self.b2.update(grad_b2, -learning_rate)
+            acc = dataset.get_validation_accuracy()
+            if acc >= 0.81:
+                return
