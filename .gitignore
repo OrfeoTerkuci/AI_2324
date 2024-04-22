@@ -162,3 +162,5 @@ cython_debug/
 
 autograder.py
 submission_autograder.py
+graphicsDisplay.py
+graphicsUtils.py
