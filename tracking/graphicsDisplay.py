@@ -122,9 +122,9 @@ class InfoPane:
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
     def setTeam(self, isBlue):
-        text = "RED TEAM"
-        if isBlue: text = "BLUE TEAM"
-        self.teamText = text( self.toScreen(300, 0  ), self.textColor, text, "Times", self.fontSize, "bold")
+        teamText = "RED TEAM"
+        if isBlue: teamText = "BLUE TEAM"
+        self.teamText = text( self.toScreen(300, 0  ), self.textColor, teamText, "Times", self.fontSize, "bold")
 
     def updateGhostDistances(self, distances):
         if len(distances) == 0: return
