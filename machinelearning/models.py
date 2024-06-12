@@ -223,6 +223,8 @@ class LanguageIDModel(object):
         self.b_hidden = nn.Parameter(1, 100)    # Bias for hidden layer
         self.w_hidden2 = nn.Parameter(100, 100)  # Weight for hidden layer
         self.b_hidden2 = nn.Parameter(1, 100)    # Bias for hidden layer
+        self.w_hidden3 = nn.Parameter(100, 100)  # Weight for hidden layer
+        self.b_hidden3 = nn.Parameter(1, 100)    # Bias for hidden layer
         self.w2 = nn.Parameter(100, 5)    # Weight for second layer
         self.b2 = nn.Parameter(1, 5)      # Bias for second layer
 
@@ -267,6 +269,9 @@ class LanguageIDModel(object):
                 f_val = nn.Add(f_val, nn.Linear(f_val, self.w_hidden2))
                 f_val = nn.AddBias(f_val, self.b_hidden2)
                 f_val = nn.ReLU(f_val)
+                f_val = nn.Add(f_val, nn.Linear(f_val, self.w_hidden3))
+                f_val = nn.AddBias(f_val, self.b_hidden3)
+                f_val = nn.ReLU(f_val)
         f_val = nn.Linear(f_val, self.w2)
         f_val = nn.AddBias(f_val, self.b2)
         return f_val
@@ -291,7 +296,7 @@ class LanguageIDModel(object):
         """
         Trains the model.
         """
-        learning_rate = 0.1
+        learning_rate = 0.075
         epoch = 0
         while True:
             epoch += 1
